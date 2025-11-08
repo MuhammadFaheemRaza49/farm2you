@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link"; 
 import { useState, useEffect } from "react";
 
 export default function TransporterDashboard() {
@@ -15,7 +16,6 @@ export default function TransporterDashboard() {
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Auto-slide every 4 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % crops.length);
@@ -24,13 +24,12 @@ export default function TransporterDashboard() {
   }, [crops.length]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-900 via-emerald-800 to-black flex flex-col items-center relative overflow-hidden text-white">
-      {/* Placeholder for Header */}
-      <div className="w-full">{/* Header will be connected here */}</div>
+    <div className="min-h-screen bg-black flex flex-col items-center relative overflow-hidden text-white">
+      {/* Header Placeholder */}
+      <div className="w-full"></div>
 
-      {/* 🚛 Carousel Background Section */}
+      {/* Carousel Section */}
       <div className="relative w-full h-[60vh] flex justify-center items-center overflow-hidden">
-        {/* Animated Image Carousel */}
         <AnimatePresence mode="wait">
           <motion.div
             key={currentIndex}
@@ -44,7 +43,7 @@ export default function TransporterDashboard() {
               src={crops[currentIndex]}
               alt="carousel"
               fill
-              className="object-cover brightness-[0.45]"
+              className="object-cover brightness-[0.4]"
             />
           </motion.div>
         </AnimatePresence>
@@ -54,61 +53,63 @@ export default function TransporterDashboard() {
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2 }}
-          className="relative z-10 text-center text-white drop-shadow-lg px-6"
+          className="relative z-10 text-center drop-shadow-[0_0_15px_rgba(22,163,74,0.6)] px-6"
         >
           <h1 className="text-5xl font-extrabold mb-4">
-            Welcome, <span className="text-emerald-300">Transporter</span> 🚛
+            Welcome, <span className="text-green-400">Transporter</span> 🚛
           </h1>
-          <p className="text-lg max-w-2xl mx-auto text-gray-200">
+          <p className="text-lg max-w-2xl mx-auto text-gray-300">
             Manage your assigned deliveries, track progress, and review completed shipments.
           </p>
         </motion.div>
 
-        {/* Overlay Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-transparent z-[5]" />
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-transparent z-[5]" />
       </div>
 
-      {/* 🚚 Transporter Options */}
+      {/* Transporter Options */}
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.2, duration: 0.8 }}
         className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8 w-[90%] max-w-4xl z-20"
       >
-        {/* 🆕 New Deliveries */}
+        {/* New Deliveries */}
         <motion.div
           whileHover={{ scale: 1.03 }}
-          className="bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-8 border border-emerald-500 hover:border-emerald-300 transition"
+          className="bg-[#0a0a0a] text-white rounded-2xl shadow-[0_0_20px_rgba(22,163,74,0.3)] p-8 border border-green-700 hover:shadow-[0_0_25px_rgba(22,163,74,0.5)] transition"
         >
-          <h2 className="text-2xl font-semibold text-emerald-300 mb-2">New Deliveries</h2>
-          <p className="text-gray-200 mb-4">
+          <h2 className="text-2xl font-semibold text-green-400 mb-2">New Deliveries</h2>
+          <p className="text-gray-300 mb-4">
             View and accept new delivery assignments from the system.
           </p>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            className="bg-emerald-500 text-white px-5 py-2 rounded-lg shadow-md hover:bg-emerald-400 transition"
-          >
-            View New Deliveries
-          </motion.button>
+          <Link href="/transporterNewOrders">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="bg-green-500 text-black font-medium px-5 py-2 rounded-lg shadow-md hover:bg-green-600 hover:text-white transition-all text-center cursor-pointer"
+            >
+              View New Deliveries
+            </motion.div>
+          </Link>
         </motion.div>
 
-        {/* ✅ Completed Deliveries */}
+        {/* Completed Deliveries */}
         <motion.div
           whileHover={{ scale: 1.03 }}
-          className="bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-8 border border-emerald-500 hover:border-emerald-300 transition"
+          className="bg-[#0a0a0a] text-white rounded-2xl shadow-[0_0_20px_rgba(22,163,74,0.3)] p-8 border border-green-700 hover:shadow-[0_0_25px_rgba(22,163,74,0.5)] transition"
         >
-          <h2 className="text-2xl font-semibold text-emerald-300 mb-2">
-            Completed Deliveries
-          </h2>
-          <p className="text-gray-200 mb-4">
+          <h2 className="text-2xl font-semibold text-green-400 mb-2">Completed Deliveries</h2>
+          <p className="text-gray-300 mb-4">
             Review your completed deliveries and check delivery records.
           </p>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            className="bg-emerald-500 text-white px-5 py-2 rounded-lg shadow-md hover:bg-emerald-400 transition"
-          >
-            View Completed Deliveries
-          </motion.button>
+          <Link href="/transporterOngoingOrders">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="bg-green-500 text-black font-medium px-5 py-2 rounded-lg shadow-md hover:bg-green-600 hover:text-white transition-all text-center cursor-pointer"
+            >
+              View Ongoing Deliveries
+            </motion.div>
+          </Link>
         </motion.div>
       </motion.div>
     </div>

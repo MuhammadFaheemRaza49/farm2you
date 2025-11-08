@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import { motion } from "framer-motion"; // Import motion here
 
 export default function AddOrderPage() {
   const [productName, setProductName] = useState("");
@@ -27,7 +29,6 @@ export default function AddOrderPage() {
     setImages(newImages);
   };
 
-  // Start recording
   const startRecording = async () => {
     if (!navigator.mediaDevices || !window.MediaRecorder) {
       alert("Your browser does not support audio recording");
@@ -49,7 +50,6 @@ export default function AddOrderPage() {
     mediaRecorder.start();
     setRecording(true);
 
-    // Stop recording after stopRecording is called
     const stopFunc = () => {
       mediaRecorder.stop();
       setRecording(false);
@@ -57,7 +57,6 @@ export default function AddOrderPage() {
     return stopFunc;
   };
 
-  // Convert audio to text and parse form fields
   const sendVoice = () => {
     if (!audioBlob) return;
 
@@ -89,15 +88,6 @@ export default function AddOrderPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const formData = new FormData();
-    formData.append("productName", productName);
-    formData.append("quantity", quantity);
-    formData.append("price", price);
-    formData.append("description", description);
-    images.forEach((image, index) => {
-      if (image) formData.append(`image${index + 1}`, image);
-    });
-
     console.log("Submitting order:", { productName, quantity, price, description, images });
     alert("Order submitted successfully!");
 
@@ -125,21 +115,18 @@ export default function AddOrderPage() {
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
           <div className="bg-[#0a0a0a] p-6 rounded-2xl w-full max-w-md text-white">
             <h2 className="text-xl font-bold mb-4 text-green-400">Record Your Order</h2>
-            
             <div className="flex flex-col items-center gap-4">
-              {!recording && (
+              {!recording ? (
                 <button
                   onClick={async () => {
                     const stop = await startRecording();
-                    // Save stop function to stop recording
                     window.stopRecordingFunc = stop;
                   }}
                   className="px-4 py-2 bg-green-500 hover:bg-green-600 rounded-lg"
                 >
                   Start Recording
                 </button>
-              )}
-              {recording && (
+              ) : (
                 <button
                   onClick={() => {
                     if (window.stopRecordingFunc) window.stopRecordingFunc();
@@ -149,9 +136,7 @@ export default function AddOrderPage() {
                   Stop Recording
                 </button>
               )}
-              {audioURL && (
-                <audio controls src={audioURL} className="w-full rounded-lg" />
-              )}
+              {audioURL && <audio controls src={audioURL} className="w-full rounded-lg" />}
               {audioURL && (
                 <button
                   onClick={sendVoice}
@@ -229,7 +214,7 @@ export default function AddOrderPage() {
           />
         </label>
 
-        {/* Attach Images Separately in 2-column grid */}
+        {/* Attach Images */}
         <div className="mb-6">
           <span className="text-green-400 font-semibold block mb-2">
             Attach Images (up to 3)
@@ -263,6 +248,16 @@ export default function AddOrderPage() {
           Submit Order
         </button>
       </form>
+
+      {/* Back to Dashboard Button */}
+      <Link href="/farmerDashboard">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          className="mt-6 bg-green-500 text-black font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-green-600 hover:text-white transition"
+        >
+          ← Back to Dashboard
+        </motion.button>
+      </Link>
     </div>
   );
 }
