@@ -26,12 +26,10 @@ export default function LoginPage() {
     setLoading(true);
     setMessage("");
 
-    // Simulate login check
     setTimeout(() => {
       if (formData.username && formData.password && formData.role) {
         setMessage("🎉 Login successful!");
 
-        // Redirect based on role
         setTimeout(() => {
           if (formData.role === "farmer") {
             router.push("/farmerDashboard");
@@ -56,7 +54,7 @@ export default function LoginPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
-      className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-0 overflow-hidden"
+      className="min-h-screen flex flex-col items-center justify-center bg-black overflow-hidden px-4"
     >
       {/* Logo */}
       <motion.div
@@ -66,9 +64,9 @@ export default function LoginPage() {
         className="mb-[-60] mt-[-120]"
       >
         <img
-          src="/registerPage/logocopy.jpg"
+          src="/registerPage/logo.png"
           alt="Logo"
-          className="h-60 w-60 object-contain mx-auto"
+          className="h-70 w-70 object-contain drop-shadow-[0_0_20px_rgba(34,197,94,0.6)]"
         />
       </motion.div>
 
@@ -78,9 +76,9 @@ export default function LoginPage() {
         initial={{ y: 80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8, delay: 0.3 }}
-        className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md border border-gray-200"
+        className="bg-[#0a0a0a] shadow-[0_0_25px_rgba(22,163,74,0.4)] rounded-2xl p-8 w-full max-w-md border border-green-600/40"
       >
-        <h1 className="text-2xl font-bold text-center text-green-700 mb-6">
+        <h1 className="text-3xl font-extrabold text-center text-green-500 mb-6 tracking-wide">
           Welcome Back
         </h1>
 
@@ -90,7 +88,7 @@ export default function LoginPage() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
             className={`text-center mb-4 font-medium ${
-              message.startsWith("🎉") ? "text-green-600" : "text-red-600"
+              message.startsWith("🎉") ? "text-green-400" : "text-red-500"
             }`}
           >
             {message}
@@ -111,7 +109,7 @@ export default function LoginPage() {
             value={formData.username}
             onChange={handleChange}
             required
-            className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="p-3 bg-black border border-green-700 text-white placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
           />
 
           <motion.input
@@ -122,7 +120,7 @@ export default function LoginPage() {
             value={formData.password}
             onChange={handleChange}
             required
-            className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="p-3 bg-black border border-green-700 text-white placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
           />
 
           {/* Role Dropdown */}
@@ -132,7 +130,7 @@ export default function LoginPage() {
             value={formData.role}
             onChange={handleChange}
             required
-            className="p-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="p-3 bg-black text-white border border-green-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
           >
             <option value="">Select Role</option>
             <option value="farmer">Farmer</option>
@@ -145,8 +143,10 @@ export default function LoginPage() {
             whileTap={{ scale: 0.95 }}
             type="submit"
             disabled={loading}
-            className={`mt-4 bg-green-600 text-white font-semibold py-3 rounded-lg transition-all ${
-              loading ? "opacity-50 cursor-not-allowed" : "hover:bg-green-700"
+            className={`mt-4 font-semibold py-3 rounded-lg transition-all duration-300 ${
+              loading
+                ? "bg-green-800 text-white"
+                : "bg-green-500 text-black hover:bg-green-600 hover:text-white"
             }`}
           >
             {loading ? "Logging in..." : "Log In"}
@@ -158,12 +158,12 @@ export default function LoginPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1 }}
-        className="mt-6 text-gray-600 text-sm"
+        className="mt-6 text-gray-400 text-sm"
       >
         Don’t have an account?{" "}
         <a
           href="/registerPage"
-          className="text-green-700 font-medium hover:underline"
+          className="text-green-500 font-medium hover:underline hover:text-green-400"
         >
           Sign Up
         </a>

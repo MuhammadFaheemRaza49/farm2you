@@ -24,7 +24,7 @@ export default function TransporterDashboard() {
   }, [crops.length]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white flex flex-col items-center relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-emerald-900 via-emerald-800 to-black flex flex-col items-center relative overflow-hidden text-white">
       {/* Placeholder for Header */}
       <div className="w-full">{/* Header will be connected here */}</div>
 
@@ -44,7 +44,7 @@ export default function TransporterDashboard() {
               src={crops[currentIndex]}
               alt="carousel"
               fill
-              className="object-cover brightness-75"
+              className="object-cover brightness-[0.45]"
             />
           </motion.div>
         </AnimatePresence>
@@ -57,7 +57,7 @@ export default function TransporterDashboard() {
           className="relative z-10 text-center text-white drop-shadow-lg px-6"
         >
           <h1 className="text-5xl font-extrabold mb-4">
-            Welcome, <span className="text-green-300">Transporter</span> 🚛
+            Welcome, <span className="text-emerald-300">Transporter</span> 🚛
           </h1>
           <p className="text-lg max-w-2xl mx-auto text-gray-200">
             Manage your assigned deliveries, track progress, and review completed shipments.
@@ -65,25 +65,8 @@ export default function TransporterDashboard() {
         </motion.div>
 
         {/* Overlay Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent z-[5]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-transparent z-[5]" />
       </div>
-
-      {/* 🤖 Chatbot Button
-      <motion.div
-        initial={{ y: 50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 1, duration: 0.8 }}
-        className="fixed bottom-6 right-6 z-50"
-      >
-        <motion.button
-          whileHover={{ scale: 1.1, boxShadow: "0 0 15px rgba(16,185,129,0.4)" }}
-          whileTap={{ scale: 0.95 }}
-          className="bg-green-600 text-white px-6 py-3 rounded-full shadow-md flex items-center gap-2"
-          onClick={() => alert("🤖 TransportBot feature will open here")}
-        >
-          <span>Chat with TransportBot</span>
-        </motion.button>
-      </motion.div> */}
 
       {/* 🚚 Transporter Options */}
       <motion.div
@@ -95,15 +78,15 @@ export default function TransporterDashboard() {
         {/* 🆕 New Deliveries */}
         <motion.div
           whileHover={{ scale: 1.03 }}
-          className="bg-white rounded-2xl shadow-md p-8 border-t-4 border-green-600 hover:shadow-lg transition"
+          className="bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-8 border border-emerald-500 hover:border-emerald-300 transition"
         >
-          <h2 className="text-2xl font-semibold text-green-700 mb-2">New Deliveries</h2>
-          <p className="text-gray-600 mb-4">
+          <h2 className="text-2xl font-semibold text-emerald-300 mb-2">New Deliveries</h2>
+          <p className="text-gray-200 mb-4">
             View and accept new delivery assignments from the system.
           </p>
           <motion.button
             whileHover={{ scale: 1.05 }}
-            className="bg-green-600 text-white px-5 py-2 rounded-lg shadow-md"
+            className="bg-emerald-500 text-white px-5 py-2 rounded-lg shadow-md hover:bg-emerald-400 transition"
           >
             View New Deliveries
           </motion.button>
@@ -112,15 +95,17 @@ export default function TransporterDashboard() {
         {/* ✅ Completed Deliveries */}
         <motion.div
           whileHover={{ scale: 1.03 }}
-          className="bg-white rounded-2xl shadow-md p-8 border-t-4 border-green-600 hover:shadow-lg transition"
+          className="bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-8 border border-emerald-500 hover:border-emerald-300 transition"
         >
-          <h2 className="text-2xl font-semibold text-green-700 mb-2">Completed Deliveries</h2>
-          <p className="text-gray-600 mb-4">
+          <h2 className="text-2xl font-semibold text-emerald-300 mb-2">
+            Completed Deliveries
+          </h2>
+          <p className="text-gray-200 mb-4">
             Review your completed deliveries and check delivery records.
           </p>
           <motion.button
             whileHover={{ scale: 1.05 }}
-            className="bg-green-600 text-white px-5 py-2 rounded-lg shadow-md"
+            className="bg-emerald-500 text-white px-5 py-2 rounded-lg shadow-md hover:bg-emerald-400 transition"
           >
             View Completed Deliveries
           </motion.button>

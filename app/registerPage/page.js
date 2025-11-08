@@ -26,16 +26,13 @@ export default function RegisterPage() {
     setLoading(true);
     setMessage("");
 
-    // Simulate registration process
     setTimeout(() => {
       console.log("✅ Registered:", formData);
       setLoading(false);
       setMessage("🎉 Registration successful!");
 
-      // Reset form
       setFormData({ username: "", password: "", role: "" });
 
-      // Redirect to login after short delay
       setTimeout(() => router.push("/loginPage"), 1500);
     }, 1000);
   };
@@ -45,7 +42,7 @@ export default function RegisterPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
-      className="min-h-screen flex flex-col items-center justify-center bg-gray-100 overflow-hidden"
+      className="min-h-screen flex flex-col items-center justify-center bg-black overflow-hidden px-4"
     >
       {/* Logo */}
       <motion.div
@@ -55,9 +52,9 @@ export default function RegisterPage() {
         className="mb-[-60] mt-[-120]"
       >
         <img
-          src="/registerPage/logocopy.jpg"
+          src="/registerPage/logo.png"
           alt="Logo"
-          className="h-60 w-60 object-contain"
+          className="h-70 w-70 object-contain drop-shadow-[0_0_20px_rgba(34,197,94,0.6)]"
         />
       </motion.div>
 
@@ -67,9 +64,9 @@ export default function RegisterPage() {
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8, delay: 0.4 }}
-        className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md border border-gray-200"
+        className="bg-[#0a0a0a] shadow-[0_0_25px_rgba(22,163,74,0.4)] rounded-2xl p-8 w-full max-w-md border border-green-600/40"
       >
-        <h1 className="text-2xl font-bold text-center text-green-700 mb-6">
+        <h1 className="text-3xl font-extrabold text-center text-green-500 mb-6 tracking-wide">
           Create Your Account
         </h1>
 
@@ -79,13 +76,14 @@ export default function RegisterPage() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
             className={`text-center mb-4 font-medium ${
-              message.startsWith("🎉") ? "text-green-600" : "text-red-600"
+              message.startsWith("🎉") ? "text-green-400" : "text-red-500"
             }`}
           >
             {message}
           </motion.p>
         )}
 
+        {/* Username */}
         <motion.input
           whileFocus={{ scale: 1.02 }}
           type="text"
@@ -94,9 +92,10 @@ export default function RegisterPage() {
           value={formData.username}
           onChange={handleChange}
           required
-          className="w-full p-3 border rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="w-full p-3 bg-black border border-green-700 text-white placeholder-gray-400 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-green-500"
         />
 
+        {/* Password */}
         <motion.input
           whileFocus={{ scale: 1.02 }}
           type="password"
@@ -105,16 +104,17 @@ export default function RegisterPage() {
           value={formData.password}
           onChange={handleChange}
           required
-          className="w-full p-3 border rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="w-full p-3 bg-black border border-green-700 text-white placeholder-gray-400 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-green-500"
         />
 
+        {/* Role */}
         <motion.select
           whileFocus={{ scale: 1.02 }}
           name="role"
           value={formData.role}
           onChange={handleChange}
           required
-          className="w-full p-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="w-full p-3 bg-black text-white border border-green-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 mb-4"
         >
           <option value="">Select Role</option>
           <option value="farmer">Farmer</option>
@@ -122,29 +122,33 @@ export default function RegisterPage() {
           <option value="transporter">Transporter</option>
         </motion.select>
 
+        {/* Button */}
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           type="submit"
           disabled={loading}
-          className={`mt-6 w-full text-white font-semibold py-3 rounded-lg transition-all ${
-            loading ? "bg-green-700" : "bg-green-600 hover:bg-green-700"
+          className={`mt-4 w-full font-semibold py-3 rounded-lg transition-all duration-300 ${
+            loading
+              ? "bg-green-800 text-white"
+              : "bg-green-500 text-black hover:bg-green-600 hover:text-white"
           }`}
         >
           {loading ? "Registering..." : "Sign Up"}
         </motion.button>
       </motion.form>
 
+      {/* Login link */}
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1 }}
-        className="mt-6 text-gray-600 text-sm"
+        className="mt-6 text-gray-400 text-sm"
       >
         Already have an account?{" "}
         <a
           href="/loginPage"
-          className="text-green-700 font-medium hover:underline"
+          className="text-green-500 font-medium hover:underline hover:text-green-400"
         >
           Log In
         </a>
