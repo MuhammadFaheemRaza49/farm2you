@@ -1,12 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 
 export default function AddOrderPage() {
   const [productName, setProductName] = useState("");
   const [quantity, setQuantity] = useState("");
   const [price, setPrice] = useState(5000); // Base price per unit
   const [description, setDescription] = useState("");
-  const [images, setImages] = useState([null, null, null]); // For 3 separate images
+  const [images, setImages] = useState([null, null, null]); 
+  const [uploadedImages, setUploadedImages] = useState([]);
   const unitPrice = 5000; // Price per 40 kg
 
   const [showMicModal, setShowMicModal] = useState(false);
@@ -86,27 +88,93 @@ export default function AddOrderPage() {
     recognition.start();
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const uploadImageToCloud = async(file) => {
+  const formData = new FormData();
+  formData.append("file", file);
 
-    const formData = new FormData();
-    formData.append("productName", productName);
-    formData.append("quantity", quantity);
-    formData.append("price", price);
-    formData.append("description", description);
-    images.forEach((image, index) => {
-      if (image) formData.append(`image${index + 1}`, image);
-    });
+  const res = await fetch("/api/upload-image", {
+    method: "POST",
+    body: formData,
+  });
 
-    console.log("Submitting order:", { productName, quantity, price, description, images });
-    alert("Order submitted successfully!");
+  if (!res.ok) {
+    throw new Error("Image upload failed");
+  }
 
-    setProductName("");
-    setQuantity("");
-    setDescription("");
-    setImages([null, null, null]);
-    setPrice(unitPrice);
+  const data = await res.json();
+  return data.secure_url; // this is the Cloudinary URL
+}
+
+  const uploadImages = async () => {
+  toast.loading("Uploading product images.....");
+
+  const uploaded = await Promise.all(
+    images.map(async (image) => {
+      if (image) {
+        const uploadedImage = await uploadImageToCloud(image);
+        console.log(`Image upload: URL => ${uploadedImage}`);
+        return uploadedImage;
+      }
+      return null;
+    })
+  );
+
+  const filteredUploaded = uploaded.filter(Boolean); // remove nulls
+  setUploadedImages(filteredUploaded);
+  toast.dismiss();
+  return filteredUploaded;
+};
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const uploaded = await uploadImages(); // wait for all uploads
+
+  toast.loading("Hold on.. Adding your product to our system");
+
+  const formData = new FormData();
+  formData.append("productName", productName);
+  formData.append("quantity", quantity);
+  formData.append("price", price);
+  formData.append("description", description);
+
+  uploaded.forEach((image, index) => {
+    formData.append(`image${index + 1}`, image);
+  });
+
+  console.log("Submitting order:", { productName, quantity, price, description, images: uploaded });
+
+    const payload = {
+    productName,
+    description,
+    qty: quantity,
+    price,
+    images: uploaded
   };
+ 
+    const req = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/product/add-product`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      },
+       body: JSON.stringify(payload)
+    })
+    const res = await req.json();
+  toast.dismiss();
+  if (res.type == "success") {
+    toast.success(res.message);
+  }
+  else {
+    toast.error(res.message)
+  }
+
+  setProductName("");
+  setQuantity("");
+  setDescription("");
+  setImages([null, null, null]);
+  setPrice(unitPrice);
+};
+
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center p-8">
