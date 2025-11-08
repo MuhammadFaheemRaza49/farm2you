@@ -70,7 +70,7 @@ export default function UserCart() {
               whileTap={{ scale: 0.95 }}
               className="w-full bg-green-500 hover:bg-green-600 text-black font-semibold py-3 rounded-lg shadow-md transition-all mt-6"
             >
-              Proceed to Blockchain Payment
+              Proceed to Payment
             </motion.button>
           </Link>
 
