@@ -10,36 +10,50 @@ export default function Header() {
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
   return (
-    <header className="bg-green-600 text-white p-4 flex justify-between items-center">
-      {/* Logo / Brand */}
-      <div className="text-xl font-bold">Farm2You</div>
+    <header className="bg-black text-green-400 w-full fixed top-0 left-0 z-50 border-b border-green-700 shadow-md">
+      <div className="max-w-7xl mx-auto flex justify-between items-center p-4">
+        {/* Logo / Brand */}
+        <div className="text-xl font-bold transition-colors duration-300 hover:bg-green-400 hover:text-black px-2 py-1 rounded">
+          Farm2You
+        </div>
 
-      {/* Desktop Menu */}
-      <nav className="hidden md:flex space-x-6">
-        <Link href="/" className="hover:text-green-200">Home</Link>
-        <Link href="/dashboard" className="hover:text-green-200">Dashboard</Link>
-        <Link href="/about" className="hover:text-green-200">About</Link>
-        <Link href="/contact" className="hover:text-green-200">Contact</Link>
-      </nav>
+        {/* Desktop Menu */}
+        <nav className="hidden md:flex space-x-6">
+          {["Home", "Dashboard", "About", "Contact"].map((item) => (
+            <Link
+              key={item}
+              href={`/${item === "Home" ? "" : item.toLowerCase()}`}
+              className="px-3 py-1 rounded font-medium transition-all duration-300 hover:bg-green-400 hover:text-black"
+            >
+              {item}
+            </Link>
+          ))}
+        </nav>
 
-      {/* Mobile Menu Button */}
-      <div className="md:hidden">
-        <button onClick={toggleMenu}>
-          {menuOpen ? (
-            <span className="text-2xl">&#10005;</span> // X icon
-          ) : (
-            <span className="text-2xl">&#9776;</span> // Hamburger icon
-          )}
-        </button>
+        {/* Mobile Menu Button */}
+        <div className="md:hidden">
+          <button
+            onClick={toggleMenu}
+            className="text-green-400 hover:text-black hover:bg-green-400 px-2 py-1 rounded transition-all duration-300"
+          >
+            {menuOpen ? "✖" : "☰"}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
       {menuOpen && (
-        <nav className="absolute top-16 left-0 w-full bg-green-600 flex flex-col items-center space-y-4 p-4 md:hidden">
-          <Link href="/" onClick={toggleMenu} className="hover:text-green-200">Home</Link>
-          <Link href="/dashboard" onClick={toggleMenu} className="hover:text-green-200">Dashboard</Link>
-          <Link href="/about" onClick={toggleMenu} className="hover:text-green-200">About</Link>
-          <Link href="/contact" onClick={toggleMenu} className="hover:text-green-200">Contact</Link>
+        <nav className="absolute top-full left-0 w-full bg-black flex flex-col items-center space-y-4 p-4 md:hidden border-t border-green-700">
+          {["Home", "Dashboard", "About", "Contact"].map((item) => (
+            <Link
+              key={item}
+              href={`/${item === "Home" ? "" : item.toLowerCase()}`}
+              onClick={toggleMenu}
+              className="w-full text-center px-4 py-2 rounded font-medium transition-all duration-300 hover:bg-green-400 hover:text-black"
+            >
+              {item}
+            </Link>
+          ))}
         </nav>
       )}
     </header>
