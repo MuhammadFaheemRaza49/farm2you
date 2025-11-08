@@ -3,14 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 
 export default function LoginPage() {
   const router = useRouter();
 
   const [formData, setFormData] = useState({
     username: "",
-    password: "",
-    role: "",
+    password: ""
   });
 
   const [loading, setLoading] = useState(false);
@@ -21,32 +21,31 @@ export default function LoginPage() {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage("");
 
-    setTimeout(() => {
-      if (formData.username && formData.password && formData.role) {
-        setMessage("🎉 Login successful!");
+    const req = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username: formData.username,
+        password: formData.password
+      })
+    })
+    const res = await req.json();
+    if (res.type == "success") {
+      toast.success(res.message);
+      router.push("/userDashboard");
+    }
+    else {
+      toast.error(res.message);
+    }
 
-        setTimeout(() => {
-          if (formData.role === "farmer") {
-            router.push("/farmerDashboard");
-          } else if (formData.role === "user") {
-            router.push("/userDashboard");
-          } else if (formData.role === "transporter") {
-            router.push("/transporterDashboard");
-          } else {
-            router.push("/homePage");
-          }
-        }, 1000);
-      } else {
-        setMessage("❌ Please fill in all fields.");
-      }
+    setLoading(false);
 
-      setLoading(false);
-    }, 1000);
   };
 
   return (
@@ -87,9 +86,8 @@ export default function LoginPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className={`text-center mb-4 font-medium ${
-              message.startsWith("🎉") ? "text-green-400" : "text-red-500"
-            }`}
+            className={`text-center mb-4 font-medium ${message.startsWith("🎉") ? "text-green-600" : "text-red-600"
+              }`}
           >
             {message}
           </motion.p>
@@ -123,31 +121,14 @@ export default function LoginPage() {
             className="p-3 bg-black border border-green-700 text-white placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
           />
 
-          {/* Role Dropdown */}
-          <motion.select
-            whileFocus={{ scale: 1.02 }}
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            required
-            className="p-3 bg-black text-white border border-green-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-          >
-            <option value="">Select Role</option>
-            <option value="farmer">Farmer</option>
-            <option value="user">User</option>
-            <option value="transporter">Transporter</option>
-          </motion.select>
 
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             type="submit"
             disabled={loading}
-            className={`mt-4 font-semibold py-3 rounded-lg transition-all duration-300 ${
-              loading
-                ? "bg-green-800 text-white"
-                : "bg-green-500 text-black hover:bg-green-600 hover:text-white"
-            }`}
+            className={`mt-4 bg-green-600 text-white font-semibold py-3 rounded-lg transition-all ${loading ? "opacity-50 cursor-not-allowed" : "hover:bg-green-700"
+              }`}
           >
             {loading ? "Logging in..." : "Log In"}
           </motion.button>
