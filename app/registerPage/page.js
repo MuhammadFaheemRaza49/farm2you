@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -21,20 +22,33 @@ export default function RegisterPage() {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
 
-    setTimeout(() => {
       console.log("✅ Registered:", formData);
+      const req = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/signup`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          username: formData.username,
+          role: formData.role,
+          password: formData.password
+        })
+      })
+      const res = await req.json();
+      if (res.type == "success") {
+        toast.success(res.message);
+        router.push("/loginPage");
+      }
+      else {
+        toast.error(res.message);
+      }
       setLoading(false);
-      setMessage("🎉 Registration successful!");
 
-      setFormData({ username: "", password: "", role: "" });
-
-      setTimeout(() => router.push("/loginPage"), 1500);
-    }, 1000);
   };
 
   return (
