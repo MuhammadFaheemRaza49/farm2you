@@ -27,3 +27,9 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+
+.mapboxgl-ctrl-attrib-inner {
+
+  display: none !important;
+}

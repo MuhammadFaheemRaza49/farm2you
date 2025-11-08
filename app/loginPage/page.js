@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
-import { useUserStore } from "@/store/store";
+import { useUserStore } from "../../store/store";
 
 export default function LoginPage() {
   const router = useRouter();

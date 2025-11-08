@@ -6,6 +6,18 @@ import { useState, useEffect } from "react";
 import { User, Scale, DollarSign, ShoppingCart } from "lucide-react";
 
 export default function UserNewOrder() {
+  const [products, setProducts] = useState([]);
+  const getProducts = async () => {
+     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/product/get-products`);
+    const data = await res.json();
+    console.log(data)
+    setProducts(data.products);
+
+  }
+
+  useEffect(()=> {
+    getProducts();
+  }, [])
   const [ads] = useState([
     {
       id: 1,
@@ -46,7 +58,7 @@ export default function UserNewOrder() {
   ]);
 
   const [currentIndexes, setCurrentIndexes] = useState(
-    ads.map(() => 0) // Track current image for each ad
+    products.map(() => 0) // Track current image for each ad
   );
 
   const [cartItems, setCartItems] = useState([]);
@@ -111,7 +123,7 @@ export default function UserNewOrder() {
         transition={{ duration: 1 }}
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl"
       >
-        {ads.map((ad, index) => (
+        {products.map((ad, index) => (
           <motion.div
             key={ad.id}
             initial={{ opacity: 0, y: 30 }}
@@ -123,7 +135,7 @@ export default function UserNewOrder() {
             <div className="w-full h-48 relative overflow-hidden">
               <motion.img
                 key={currentIndexes[index]}
-                src={ad.images[currentIndexes[index]]}
+                src={ad.images[0]}
                 alt={ad.product}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -136,17 +148,17 @@ export default function UserNewOrder() {
             {/* Card Content */}
             <div className="p-6">
               <h2 className="text-2xl font-bold text-green-400 mb-4 text-center">
-                {ad.product}
+                {ad.productName}
               </h2>
 
               <div className="space-y-2 mb-4">
                 <div className="flex items-center gap-2 text-gray-300">
                   <User className="text-green-400 w-5 h-5" />
-                  <span>{ad.farmer}</span>
+                  <span>{ad.user.username}</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-300">
                   <Scale className="text-green-400 w-5 h-5" />
-                  <span>{ad.quantity}</span>
+                  <span>{ad.qty}</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-300">
                   <DollarSign className="text-green-400 w-5 h-5" />

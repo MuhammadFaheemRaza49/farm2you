@@ -4,7 +4,7 @@ import { useState } from "react";
 import Map, { Marker } from "react-map-gl/mapbox";
 import axios from "axios";
 
-export default function FarmerLocationPicker() {
+export default function UserLocationPicker() {
   const [location, setLocation] = useState({ lat: 24.8607, lng: 67.0011 });
   const [address, setAddress] = useState("");
   const [selected, setSelected] = useState(false);
