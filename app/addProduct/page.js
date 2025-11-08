@@ -59,7 +59,7 @@ export default function AddOrderPage() {
     return stopFunc;
   };
 
-  const sendVoice = () => {
+  const sendVoice = async() => {
     if (!audioBlob) return;
 
   const formData = new FormData();
