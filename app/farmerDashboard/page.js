@@ -106,7 +106,7 @@ export default function FarmerDashboard() {
             whileHover={{ scale: 1.05 }}
             className="bg-green-500 text-black font-medium px-5 py-2 rounded-lg shadow-md hover:bg-green-600 hover:text-white transition-all"
           >
-            <Link href="/ongoing-orders">View Ongoing Orders</Link>
+            <Link href="/viewAdds">View Ongoing Orders</Link>
           </motion.button>
         </motion.div>
       </motion.div>
