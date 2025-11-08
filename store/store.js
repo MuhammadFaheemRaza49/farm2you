@@ -11,11 +11,7 @@ export const useUserStore = create((set) => ({
             attachments: [...state.attachments, attachment],
         }));
     },
-    setCartItems: (existingCartItems) => {
-        set((state) => ({
-            cartItems: [existingCartItems],
-        }));
-    },
+   setCartItems: (newItems) => set({ cartItems: newItems }),
     resetAttachments: () => set({ attachments: [] }),
     setIsLogin: (newState) => set({ isLogin: newState }),
     setUsername: (newState) => set({ username: newState }),

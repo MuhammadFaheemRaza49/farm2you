@@ -6,7 +6,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import "mapbox-gl/dist/mapbox-gl.css"; // ✅ Make sure this is included
 
-export default function UserLocationPicker({setLocationData}) {
+export default function UserLocationPicker({getDistance, farmerLocation, setLocationData}) {
   const [location, setLocation] = useState(null); // ✅ No marker initially
   const [address, setAddress] = useState("");
   const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;

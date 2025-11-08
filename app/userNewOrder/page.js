@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { User, Scale, DollarSign, ShoppingCart } from "lucide-react";
 import { useUserStore } from "../..//store/store";
+import toast from "react-hot-toast";
 
 export default function UserNewOrder() {
   const { cartItems, setCartItems } = useUserStore();
@@ -86,7 +87,8 @@ export default function UserNewOrder() {
     const existingCart = JSON.parse(localStorage.getItem("userCart")) || [];
     existingCart.push(ad);
     localStorage.setItem("userCart", JSON.stringify(existingCart));
-    setCartItems(existingCart);
+    setCartItems(existingCart); 
+    toast.success(`${ad.productName} added to cart`)
   };
 
   return (

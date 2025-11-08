@@ -5,12 +5,18 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import UserLocationPicker from "../../components/UserLocationPicker";
 import toast from "react-hot-toast";
+import { useUserStore } from "../../store/store";
+import * as turf from '@turf/turf';
+import DistanceMap from "../../components/DistanceMap";
 
 export default function UserCart() {
-  const [cartItems, setCartItems] = useState([]);
+  const { cartItems, setCartItems } = useUserStore();
   const [showModal, setShowModal] = useState(false);
   const [step, setStep] = useState(1); // step 1 = info, step 2 = location
   const [locationData, setLocationData] = useState(null);
+  const [farmerLocation, setFarmerLocation] = useState(null);
+  const [delivery, setDelivery] = useState(0);
+  const [km, setKm] = useState(0);
   const [customerInfo, setCustomerInfo] = useState({
     firstName: "",
     lastName: "",
@@ -37,38 +43,82 @@ export default function UserCart() {
     });
   };
 
- const placeOrder = async () => {
-  if (!locationData) return toast.error("Please select a location first!");
-  if (!customerInfo.firstName || !customerInfo.phoneNumber){
-    toast.error("Please fill all required fields!");
-    return;
-  }
-
-  try {
-    const token = localStorage.getItem("token");
-
+  const fetchFarmerLocation = async (username) => {
     const payload = {
-      address: locationData,
-      cartItems,
-      price: cartItems.reduce((sum, item) => sum + Number(item.price || 0), 0),
-      delivery: 100, // example, replace with actual calculation if needed
-      customerInfo, // send customer info
-    };
+      username: username
+    }
+    const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/farmer/get-location`, payload);
+    setFarmerLocation(res.data.address);
+    console.log(res)
+      getDistance(locationData, res.data.address);
 
-    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/order/place-order`, payload, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  };
 
-    toast.success("Order placed successfully!");
-    setShowModal(false);
-    setStep(1);
-    setCartItems([]);
-    localStorage.removeItem("userCart");
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to place order");
+
+  const distanceInKm = (userLoc, farmerLoc) => {
+    console.log(userLoc);
+    console.log(farmerLoc)
+    const from = turf.point([userLoc.longitude, userLoc.latitude]);
+    const to = turf.point([farmerLoc.lng, farmerLoc.lat]);
+    const options = { units: 'kilometers' };
+    let overallDistance = turf.distance(from, to, options);
+    console.log(overallDistance)
+    setKm(overallDistance)
+    return overallDistance
+  };
+
+  const getDistance = async (user, farmer) => {
+    console.log(user,farmer)
+    if (!user || !farmer) {
+      return;
+    }
+    const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${user.longitude},${user.latitude};${farmer.longitude},${farmer.latitude}?access_token=${token}`;
+
+    const response = await axios.get(url);
+    const route = response.data.routes[0];
+    console.log(`Distance: ${route.distance / 1000} km`);
+    console.log(`Duration: ${route.duration / 60} minutes`);
+    let KM = route.distance / 1000
+    setKm(KM);
+    setDelivery(KM*100)
   }
-};
+
+
+  const placeOrder = async () => {
+    if (!locationData) return toast.error("Please select a location first!");
+    if (!customerInfo.firstName || !customerInfo.phoneNumber) {
+      toast.error("Please fill all required fields!");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const payload = {
+        address: locationData,
+        cartItems,
+        price: cartItems.reduce((sum, item) => sum + Number(item.price || 0), 0),
+        delivery: 100, // example, replace with actual calculation if needed
+        customerInfo, // send customer info
+        delivery,
+        km
+      };
+
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/order/place-order`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      toast.success("Order placed successfully!");
+      setShowModal(false);
+      setStep(1);
+      setCartItems([]);
+      localStorage.removeItem("userCart");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to place order");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-black text-white px-6 py-12 flex flex-col items-center">
@@ -171,7 +221,7 @@ export default function UserCart() {
             {step === 2 && (
               <div>
                 <h2 className="text-2xl font-bold text-green-400 mb-4">Select Your Location</h2>
-                <UserLocationPicker setLocationData={setLocationData} />
+                <UserLocationPicker getDistance={getDistance} setLocationData={setLocationData} />
                 <div className="flex justify-between gap-4 mt-4">
                   <button
                     onClick={() => setStep(1)}
@@ -180,14 +230,48 @@ export default function UserCart() {
                     Back
                   </button>
                   <button
-                    onClick={placeOrder}
+                    onClick={() => {
+                      if (!farmerLocation) {
+                        fetchFarmerLocation(cartItems[0].user.username);
+                      }
+                      setStep(3)
+                    }
+
+                    }
                     className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded font-semibold"
                   >
-                    Place Order
+                    Next
                   </button>
                 </div>
               </div>
             )}
+
+           
+            {
+              step === 3 && (
+                <div>
+
+                  <h2 className="text-2xl font-bold text-green-400 mb-4">Delivery</h2>
+                  <p>Total Km: {km}</p>
+                  <p>Delivery Charges: {km*100}</p>
+                  <DistanceMap farmerLocation={farmerLocation} userLocation={locationData} />
+                  <div className="flex justify-between gap-4 mt-4">
+                    <button
+                      onClick={() => setStep(2)}
+                      className="bg-gray-700 hover:bg-gray-800 px-4 py-2 rounded font-semibold"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={placeOrder}
+                      className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded font-semibold"
+                    >
+                      Place Order
+                    </button>
+                  </div>
+                </div>
+              )
+            }
           </div>
         </div>
       )}
