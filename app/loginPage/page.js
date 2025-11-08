@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
+import { useUserStore } from "@/store/store";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,6 +16,8 @@ export default function LoginPage() {
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+
+  const {setUsername, setRole, setIsLogin} = useUserStore();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,7 +41,23 @@ export default function LoginPage() {
     const res = await req.json();
     if (res.type == "success") {
       toast.success(res.message);
-      router.push("/userDashboard");
+      console.log(res)
+      localStorage.setItem("token", res.token);
+      let role = res.user.role;
+      setUsername(res.user.username);
+      setRole(role);
+      setIsLogin(true)
+
+      if (role == "user") {
+        router.push("/userDashboard");
+      }
+      else if (role == "farmer") {
+        router.push("/farmerDashboard");
+      }
+      else {
+        router.push("/transporterDashboard");
+      }
+    
     }
     else {
       toast.error(res.message);

@@ -2,13 +2,15 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion"; // Import motion here
+import toast from "react-hot-toast";
 
 export default function AddOrderPage() {
   const [productName, setProductName] = useState("");
   const [quantity, setQuantity] = useState("");
   const [price, setPrice] = useState(5000); // Base price per unit
   const [description, setDescription] = useState("");
-  const [images, setImages] = useState([null, null, null]); // For 3 separate images
+  const [images, setImages] = useState([null, null, null]); 
+  const [uploadedImages, setUploadedImages] = useState([]);
   const unitPrice = 5000; // Price per 40 kg
 
   const [showMicModal, setShowMicModal] = useState(false);
@@ -60,43 +62,148 @@ export default function AddOrderPage() {
   const sendVoice = () => {
     if (!audioBlob) return;
 
-    const recognition = new window.webkitSpeechRecognition();
-    recognition.lang = "en-US";
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
+  const formData = new FormData();
+  formData.append('file', audioBlob, 'voice.wav');
 
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/product/speech-to-text`, {
+      method: 'POST',
+      body: formData
+    });
+    const data = await res.json();
+    console.log(data)
+    const transcript = data.text || ''
+    console.log(transcript)
 
-      const nameMatch = transcript.match(/product name[:\-]?\s*([^,]+)/i);
-      const quantityMatch = transcript.match(/quantity[:\-]?\s*(\d+)/i);
-      const descriptionMatch = transcript.match(/description[:\-]?\s*(.+)/i);
+    convertTextToFormattedText(transcript);
 
-      if (nameMatch) setProductName(nameMatch[1].trim());
-      if (quantityMatch) setQuantity(quantityMatch[1].trim());
-      if (descriptionMatch) setDescription(descriptionMatch[1].trim());
 
-      setShowMicModal(false);
-      setAudioBlob(null);
-      setAudioURL(null);
-    };
 
-    recognition.onerror = (e) => console.error(e);
-    recognition.start();
+    setShowMicModal(false);
+    setAudioBlob(null);
+    setAudioURL(null);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const convertTextToFormattedText = async(body) =>{
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/product/text-to-format-text`, {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({text: body})
+    });
+    const data = await res.json();
+    const text = data.fields || ''
+    console.log(text);
+    if (text.productName != "") {
+      setProductName(text.productName)
+    }
+    if (text.price != "") {
+      setPrice(text.price)
+    }
+    if (text.qty != "") {
+      setQuantity(text.qty)
+    }
+    if (text.description != "") {
+      setDescription(text.description)
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+
+  const uploadImageToCloud = async(file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch("/api/upload-image", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!res.ok) {
+    throw new Error("Image upload failed");
+  }
+
+  const data = await res.json();
+  return data.secure_url; // this is the Cloudinary URL
+}
+
+  const uploadImages = async () => {
+  toast.loading("Uploading product images.....");
+
+  const uploaded = await Promise.all(
+    images.map(async (image) => {
+      if (image) {
+        const uploadedImage = await uploadImageToCloud(image);
+        console.log(`Image upload: URL => ${uploadedImage}`);
+        return uploadedImage;
+      }
+      return null;
+    })
+  );
+
+  const filteredUploaded = uploaded.filter(Boolean); // remove nulls
+  setUploadedImages(filteredUploaded);
+  toast.dismiss();
+  return filteredUploaded;
+};
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const uploaded = await uploadImages(); // wait for all uploads
+
+  toast.loading("Hold on.. Adding your product to our system");
+
+  const formData = new FormData();
+  formData.append("productName", productName);
+  formData.append("quantity", quantity);
+  formData.append("price", price);
+  formData.append("description", description);
+
+  uploaded.forEach((image, index) => {
+    formData.append(`image${index + 1}`, image);
+  });
+
+  console.log("Submitting order:", { productName, quantity, price, description, images: uploaded });
+
+    const payload = {
+    productName,
+    description,
+    qty: quantity,
+    price,
+    images: uploaded
   };
+ 
+    const req = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/product/add-product`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      },
+       body: JSON.stringify(payload)
+    })
+    const res = await req.json();
+  toast.dismiss();
+  if (res.type == "success") {
+    toast.success(res.message);
+  }
+  else {
+    toast.error(res.message)
+  }
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  setProductName("");
+  setQuantity("");
+  setDescription("");
+  setImages([null, null, null]);
+  setPrice(unitPrice);
+};
 
-    console.log("Submitting order:", { productName, quantity, price, description, images });
-    alert("Order submitted successfully!");
-
-    setProductName("");
-    setQuantity("");
-    setDescription("");
-    setImages([null, null, null]);
-    setPrice(unitPrice);
-  };
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center p-8">
