@@ -59,34 +59,63 @@ export default function AddOrderPage() {
     return stopFunc;
   };
 
-  // Convert audio to text and parse form fields
-  const sendVoice = () => {
-    if (!audioBlob) return;
+  const sendVoice = async () => {
+  if (!audioBlob) return;
 
-    const recognition = new window.webkitSpeechRecognition();
-    recognition.lang = "en-US";
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
+  const formData = new FormData();
+  formData.append('file', audioBlob, 'voice.wav');
 
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/product/speech-to-text`, {
+      method: 'POST',
+      body: formData
+    });
+    const data = await res.json();
+    console.log(data)
+    const transcript = data.text || ''
+    console.log(transcript)
 
-      const nameMatch = transcript.match(/product name[:\-]?\s*([^,]+)/i);
-      const quantityMatch = transcript.match(/quantity[:\-]?\s*(\d+)/i);
-      const descriptionMatch = transcript.match(/description[:\-]?\s*(.+)/i);
+    convertTextToFormattedText(transcript);
 
-      if (nameMatch) setProductName(nameMatch[1].trim());
-      if (quantityMatch) setQuantity(quantityMatch[1].trim());
-      if (descriptionMatch) setDescription(descriptionMatch[1].trim());
 
-      setShowMicModal(false);
-      setAudioBlob(null);
-      setAudioURL(null);
-    };
 
-    recognition.onerror = (e) => console.error(e);
-    recognition.start();
-  };
+    setShowMicModal(false);
+    setAudioBlob(null);
+    setAudioURL(null);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const convertTextToFormattedText = async(body) =>{
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/product/text-to-format-text`, {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({text: body})
+    });
+    const data = await res.json();
+    const text = data.fields || ''
+    console.log(text);
+    if (text.productName != "") {
+      setProductName(text.productName)
+    }
+    if (text.price != "") {
+      setPrice(text.price)
+    }
+    if (text.qty != "") {
+      setQuantity(text.qty)
+    }
+    if (text.description != "") {
+      setDescription(text.description)
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 
   const uploadImageToCloud = async(file) => {
   const formData = new FormData();
