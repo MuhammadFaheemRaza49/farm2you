@@ -4,12 +4,12 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState } from "react";
 
-export default function FarmerOngoingOrders() {
+export default function TransporterOngoingOrders() {
   const [orders] = useState([
-    { id: 1, buyer: "Retailer A", product: "Wheat", quantity: 5, price: 16000, status: "In Transit" },
-    { id: 2, buyer: "Retailer B", product: "Rice", quantity: 3, price: 13500, status: "In Transit" },
-    { id: 3, buyer: "Retailer C", product: "Vegetables", quantity: 2, price: 8000, status: "Delivered" },
-    { id: 4, buyer: "Retailer D", product: "Corn", quantity: 4, price: 18000, status: "Delivered" },
+    { id: 1, user: "Customer A", product: "Wheat", quantity: "200 kg", price: 16000, status: "In Transit" },
+    { id: 2, user: "Customer B", product: "Rice", quantity: "150 kg", price: 13500, status: "In Transit" },
+    { id: 3, user: "Customer C", product: "Vegetables", quantity: "100 kg", price: 8000, status: "Delivered" },
+    { id: 4, user: "Customer D", product: "Corn", quantity: "250 kg", price: 18000, status: "Delivered" },
   ]);
 
   const totalOrders = orders.length;
@@ -31,10 +31,10 @@ export default function FarmerOngoingOrders() {
         className="text-center mb-12"
       >
         <h1 className="text-5xl font-bold text-green-400 drop-shadow-[0_0_15px_rgba(22,163,74,0.6)] mb-4">
-          Ongoing Orders 📦
+          Ongoing Deliveries 🚚
         </h1>
         <p className="text-gray-300 text-lg max-w-2xl mx-auto">
-          Track your orders and view your earnings and performance stats.
+          Track deliveries and view your performance stats.
         </p>
       </motion.div>
 
@@ -76,7 +76,7 @@ export default function FarmerOngoingOrders() {
           <thead className="bg-[#0a0a0a] border-b border-green-700">
             <tr>
               <th className="text-left px-4 py-3 text-gray-300">ID</th>
-              <th className="text-left px-4 py-3 text-gray-300">Buyer</th>
+              <th className="text-left px-4 py-3 text-gray-300">User</th>
               <th className="text-left px-4 py-3 text-gray-300">Product</th>
               <th className="text-left px-4 py-3 text-gray-300">Quantity</th>
               <th className="text-left px-4 py-3 text-gray-300">Price</th>
@@ -90,9 +90,9 @@ export default function FarmerOngoingOrders() {
                 className="border-b border-green-700 hover:bg-green-900/20 transition"
               >
                 <td className="px-4 py-3 text-gray-300">{order.id}</td>
-                <td className="px-4 py-3 text-gray-300">{order.buyer}</td>
+                <td className="px-4 py-3 text-gray-300">{order.user}</td>
                 <td className="px-4 py-3 text-gray-300">{order.product}</td>
-                <td className="px-4 py-3 text-gray-300">{order.quantity} x 40kg</td>
+                <td className="px-4 py-3 text-gray-300">{order.quantity}</td>
                 <td className="px-4 py-3 text-gray-300">PKR {order.price.toLocaleString()}</td>
                 <td
                   className={`px-4 py-3 font-semibold ${
@@ -114,7 +114,7 @@ export default function FarmerOngoingOrders() {
         transition={{ delay: 0.8 }}
         className="mt-12 text-center"
       >
-        <Link href="/farmerDashboard">
+        <Link href="/transporterDashboard">
           <motion.button
             whileHover={{ scale: 1.05 }}
             className="bg-green-500 text-black font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-green-600 hover:text-white transition"

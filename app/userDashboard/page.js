@@ -2,17 +2,17 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useState, useEffect, useRef } from "react";
 
 export default function TransporterDashboard() {
-  const crops = [
-    "/homePage/wheat1.jpg",
-    "/homePage/wheat2.jpg"
-  ];
-
+  const crops = ["/homePage/wheat1.jpg", "/homePage/wheat2.jpg"];
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [userInput, setUserInput] = useState("");
+  const messagesEndRef = useRef(null);
 
-  // Auto-slide every 4 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % crops.length);
@@ -20,14 +20,32 @@ export default function TransporterDashboard() {
     return () => clearInterval(interval);
   }, [crops.length]);
 
+  // Scroll to bottom when new message is added
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatMessages]);
+
+  const handleSendMessage = () => {
+    if (!userInput.trim()) return;
+    setChatMessages([...chatMessages, { sender: "user", text: userInput }]);
+    setUserInput("");
+
+    // Simulate bot reply
+    setTimeout(() => {
+      setChatMessages((prev) => [
+        ...prev,
+        { sender: "bot", text: "🤖 FarmBot: This is a simulated reply." },
+      ]);
+    }, 1000);
+  };
+
   return (
     <div className="min-h-screen bg-black flex flex-col items-center relative overflow-hidden text-white">
-      {/* Placeholder for Header */}
-      <div className="w-full">{/* Header will be connected here */}</div>
+      {/* Header */}
+      <div className="w-full"></div>
 
-      {/* 🚛 Carousel Background Section */}
+      {/* Carousel Background */}
       <div className="relative w-full h-[60vh] flex justify-center items-center overflow-hidden">
-        {/* Animated Image Carousel */}
         <AnimatePresence mode="wait">
           <motion.div
             key={currentIndex}
@@ -76,11 +94,73 @@ export default function TransporterDashboard() {
           whileHover={{ scale: 1.1, boxShadow: "0 0 15px rgba(22,163,74,0.5)" }}
           whileTap={{ scale: 0.95 }}
           className="bg-green-600 text-white px-6 py-3 rounded-full shadow-md flex items-center gap-2 hover:bg-green-700 transition-all"
-          onClick={() => alert('🤖 Chatbot feature will open here')}
+          onClick={() => setChatOpen((prev) => !prev)}
         >
           <span>Chat with FarmBot</span>
         </motion.button>
       </motion.div>
+
+      {/* Chat Popup */}
+      <AnimatePresence>
+        {chatOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, x: 50 }}
+            animate={{ opacity: 1, y: 0, x: 0 }}
+            exit={{ opacity: 0, y: 50, x: 50 }}
+            transition={{ duration: 0.3 }}
+            className="fixed bottom-20 right-6 w-96 bg-gray-900 rounded-3xl flex flex-col overflow-hidden z-50 border border-green-700 shadow-2xl"
+          >
+            {/* Header */}
+            <div className="flex justify-between items-center p-4 bg-green-700/20 border-b border-green-500">
+              <h2 className="text-green-300 font-bold text-lg">FarmBot 🤖</h2>
+              <button
+                className="text-gray-300 hover:text-red-500 font-bold text-xl"
+                onClick={() => setChatOpen(false)}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Messages */}
+            <div className="flex-1 p-4 overflow-y-auto space-y-3 max-h-80 bg-gray-800">
+              {chatMessages.map((msg, i) => (
+                <div
+                  key={i}
+                  className={`${msg.sender === "user" ? "text-right" : "text-left"}`}
+                >
+                  <span
+                    className={`inline-block p-3 rounded-xl break-words max-w-[80%] ${
+                      msg.sender === "user"
+                        ? "bg-green-500 text-black"
+                        : "bg-gray-700 text-white"
+                    }`}
+                  >
+                    {msg.text}
+                  </span>
+                </div>
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Input */}
+            <div className="flex p-4 border-t border-green-500 bg-gray-900">
+              <input
+                type="text"
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                placeholder="Type your message..."
+                className="flex-1 p-3 rounded-2xl bg-gray-800 border border-green-700 text-white focus:outline-none focus:ring-2 focus:ring-green-400"
+              />
+              <button
+                onClick={handleSendMessage}
+                className="ml-3 bg-green-500 hover:bg-green-600 text-black px-5 py-3 rounded-2xl font-medium transition"
+              >
+                Send
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 🚚 Transporter Options */}
       <motion.div
@@ -89,41 +169,33 @@ export default function TransporterDashboard() {
         transition={{ delay: 1.2, duration: 0.8 }}
         className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8 w-[90%] max-w-4xl z-20"
       >
-        {/* 🆕 New Deliveries */}
+        {/* New Deliveries */}
         <motion.div
           whileHover={{ scale: 1.03 }}
           className="bg-[#0a0a0a] text-white rounded-2xl shadow-[0_0_20px_rgba(22,163,74,0.3)] p-8 border border-green-700 hover:shadow-[0_0_25px_rgba(22,163,74,0.5)] transition"
         >
-          <h2 className="text-2xl font-semibold text-green-400 mb-2">
-            Make New Order
-          </h2>
-          <p className="text-gray-300 mb-4">
-            View and accept new delivery assignments from the system.
-          </p>
+          <h2 className="text-2xl font-semibold text-green-400 mb-2">Make New Order</h2>
+          <p className="text-gray-300 mb-4">View and accept new delivery assignments from the system.</p>
           <motion.button
             whileHover={{ scale: 1.05 }}
             className="bg-green-500 text-black font-medium px-5 py-2 rounded-lg shadow-md hover:bg-green-600 hover:text-white transition-all"
           >
-            Make a new order
+            <Link href="/userNewOrder">New Order</Link>
           </motion.button>
         </motion.div>
 
-        {/* ✅ Completed Deliveries */}
+        {/* Completed Deliveries */}
         <motion.div
           whileHover={{ scale: 1.03 }}
           className="bg-[#0a0a0a] text-white rounded-2xl shadow-[0_0_20px_rgba(22,163,74,0.3)] p-8 border border-green-700 hover:shadow-[0_0_25px_rgba(22,163,74,0.5)] transition"
         >
-          <h2 className="text-2xl font-semibold text-green-400 mb-2">
-            Review Orders
-          </h2>
-          <p className="text-gray-300 mb-4">
-            Review your orders.
-          </p>
+          <h2 className="text-2xl font-semibold text-green-400 mb-2">Review Orders</h2>
+          <p className="text-gray-300 mb-4">Review your orders.</p>
           <motion.button
             whileHover={{ scale: 1.05 }}
             className="bg-green-500 text-black font-medium px-5 py-2 rounded-lg shadow-md hover:bg-green-600 hover:text-white transition-all"
           >
-            Review your ongoing orders.
+            <Link href="/userOngoingOrder">Review Ongoing Orders</Link>
           </motion.button>
         </motion.div>
       </motion.div>
