@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { User, Scale, DollarSign } from "lucide-react";
+import { User, Scale, DollarSign, ShoppingCart } from "lucide-react";
 
 export default function UserNewOrder() {
   const [ads] = useState([
@@ -49,6 +49,14 @@ export default function UserNewOrder() {
     ads.map(() => 0) // Track current image for each ad
   );
 
+  const [cartItems, setCartItems] = useState([]);
+
+  // Load cart from localStorage
+  useEffect(() => {
+    const storedCart = JSON.parse(localStorage.getItem("userCart")) || [];
+    setCartItems(storedCart);
+  }, []);
+
   // Auto-slide images every 3 seconds
   useEffect(() => {
     const interval = setInterval(() => {
@@ -59,8 +67,28 @@ export default function UserNewOrder() {
     return () => clearInterval(interval);
   }, [ads]);
 
+  // Add item to cart
+  const addToCart = (ad) => {
+    const existingCart = JSON.parse(localStorage.getItem("userCart")) || [];
+    existingCart.push(ad);
+    localStorage.setItem("userCart", JSON.stringify(existingCart));
+    setCartItems(existingCart);
+  };
+
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center px-6 py-12">
+    <div className="min-h-screen bg-black text-white flex flex-col items-center px-6 py-12 relative">
+      {/* Cart Icon */}
+      <Link href="/userCart" className="absolute top-6 right-6">
+        <div className="relative cursor-pointer">
+          <ShoppingCart className="w-8 h-8 text-green-400 hover:text-green-500 transition" />
+          {cartItems.length > 0 && (
+            <span className="absolute -top-2 -right-2 bg-green-500 text-black rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+              {cartItems.length}
+            </span>
+          )}
+        </div>
+      </Link>
+
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -126,19 +154,13 @@ export default function UserNewOrder() {
                 </div>
               </div>
 
-              <p className="text-gray-400 mb-6 italic text-sm">
-                {ad.description}
-              </p>
-
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() =>
-                  console.log(`Order placed for ${ad.product} by ${ad.farmer}`)
-                }
+                onClick={() => addToCart(ad)}
                 className="w-full bg-green-500 hover:bg-green-600 text-black font-medium py-3 rounded-lg shadow-md transition-all"
               >
-                Order Now
+                Add to Cart
               </motion.button>
             </div>
           </motion.div>
