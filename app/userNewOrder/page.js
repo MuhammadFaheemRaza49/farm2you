@@ -4,8 +4,11 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { User, Scale, DollarSign, ShoppingCart } from "lucide-react";
+import { useUserStore } from "../..//store/store";
 
 export default function UserNewOrder() {
+  const { cartItems, setCartItems } = useUserStore();
+
   const [products, setProducts] = useState([]);
   const getProducts = async () => {
      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/product/get-products`);
@@ -61,7 +64,6 @@ export default function UserNewOrder() {
     products.map(() => 0) // Track current image for each ad
   );
 
-  const [cartItems, setCartItems] = useState([]);
 
   // Load cart from localStorage
   useEffect(() => {
@@ -89,17 +91,7 @@ export default function UserNewOrder() {
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center px-6 py-12 relative">
-      {/* Cart Icon */}
-      <Link href="/userCart" className="absolute top-6 right-6">
-        <div className="relative cursor-pointer">
-          <ShoppingCart className="w-8 h-8 text-green-400 hover:text-green-500 transition" />
-          {cartItems.length > 0 && (
-            <span className="absolute -top-2 -right-2 bg-green-500 text-black rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
-              {cartItems.length}
-            </span>
-          )}
-        </div>
-      </Link>
+      
 
       {/* Header */}
       <motion.div

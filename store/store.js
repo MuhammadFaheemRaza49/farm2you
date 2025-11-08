@@ -5,9 +5,15 @@ export const useUserStore = create((set) => ({
     username: "",
     role: "",
     attachments: [],
+    cartItems: [],
     setAttachments: (attachment) => {
         set((state) => ({
             attachments: [...state.attachments, attachment],
+        }));
+    },
+    setCartItems: (existingCartItems) => {
+        set((state) => ({
+            cartItems: [existingCartItems],
         }));
     },
     resetAttachments: () => set({ attachments: [] }),

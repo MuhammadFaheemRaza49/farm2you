@@ -1,25 +1,22 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { motion } from "framer-motion";
+import axios from "axios";
 import UserLocationPicker from "../../components/UserLocationPicker";
-
-
-// Example modal content component
-function PaymentConfirmation() {
-  return (
-    <div className="p-6 bg-black text-white rounded-xl shadow-lg max-w-md mx-auto">
-      <h2 className="text-2xl font-bold text-green-400 mb-4">Confirm Your Payment</h2>
-      <p className="text-gray-300 mb-6">Your payment details will be processed here.</p>
-      {/* Add any other content like summary, forms, etc */}
-    </div>
-  );
-}
+import toast from "react-hot-toast";
 
 export default function UserCart() {
   const [cartItems, setCartItems] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [step, setStep] = useState(1); // step 1 = info, step 2 = location
+  const [locationData, setLocationData] = useState(null);
+  const [customerInfo, setCustomerInfo] = useState({
+    firstName: "",
+    lastName: "",
+    phoneNumber: "",
+    email: "",
+  });
 
   // Load cart from localStorage
   useEffect(() => {
@@ -32,6 +29,46 @@ export default function UserCart() {
     setCartItems(updatedCart);
     localStorage.setItem("userCart", JSON.stringify(updatedCart));
   };
+
+  const handleInputChange = (e) => {
+    setCustomerInfo({
+      ...customerInfo,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+ const placeOrder = async () => {
+  if (!locationData) return toast.error("Please select a location first!");
+  if (!customerInfo.firstName || !customerInfo.phoneNumber){
+    toast.error("Please fill all required fields!");
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem("token");
+
+    const payload = {
+      address: locationData,
+      cartItems,
+      price: cartItems.reduce((sum, item) => sum + Number(item.price || 0), 0),
+      delivery: 100, // example, replace with actual calculation if needed
+      customerInfo, // send customer info
+    };
+
+    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/order/place-order`, payload, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    toast.success("Order placed successfully!");
+    setShowModal(false);
+    setStep(1);
+    setCartItems([]);
+    localStorage.removeItem("userCart");
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to place order");
+  }
+};
 
   return (
     <div className="min-h-screen bg-black text-white px-6 py-12 flex flex-col items-center">
@@ -63,18 +100,6 @@ export default function UserCart() {
             </motion.div>
           ))}
 
-          {/* Proceed to Blockchain Payment */}
-          <Link href="/userPayment">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-full bg-green-500 hover:bg-green-600 text-black font-semibold py-3 rounded-lg shadow-md transition-all mt-6"
-            >
-              Proceed to Payment
-            </motion.button>
-          </Link>
-
-          {/* Next Button to open modal */}
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -88,28 +113,84 @@ export default function UserCart() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-          <div className="relative">
-            <UserLocationPicker />
-            <button
-              onClick={() => setShowModal(false)}
-              className="absolute top-2 right-2 text-white bg-red-500 px-3 py-1 rounded-lg hover:bg-red-600 transition"
-            >
-              Close
-            </button>
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 overflow-auto">
+          <div className="relative bg-black p-6 rounded-xl max-w-xl w-full">
+            {step === 1 && (
+              <div className="space-y-4">
+                <h2 className="text-2xl font-bold text-green-400 mb-4">Enter Your Info</h2>
+                <input
+                  type="text"
+                  name="firstName"
+                  placeholder="First Name"
+                  value={customerInfo.firstName}
+                  onChange={handleInputChange}
+                  className="w-full p-2 rounded bg-gray-900 text-white border border-green-700"
+                />
+                <input
+                  type="text"
+                  name="lastName"
+                  placeholder="Last Name"
+                  value={customerInfo.lastName}
+                  onChange={handleInputChange}
+                  className="w-full p-2 rounded bg-gray-900 text-white border border-green-700"
+                />
+                <input
+                  type="text"
+                  name="phoneNumber"
+                  placeholder="Phone Number"
+                  value={customerInfo.phoneNumber}
+                  onChange={handleInputChange}
+                  className="w-full p-2 rounded bg-gray-900 text-white border border-green-700"
+                />
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email (optional)"
+                  value={customerInfo.email}
+                  onChange={handleInputChange}
+                  className="w-full p-2 rounded bg-gray-900 text-white border border-green-700"
+                />
+
+                <div className="flex justify-end gap-4 mt-4">
+                  <button
+                    onClick={() => setShowModal(false)}
+                    className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded font-semibold"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => setStep(2)}
+                    className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded font-semibold"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {step === 2 && (
+              <div>
+                <h2 className="text-2xl font-bold text-green-400 mb-4">Select Your Location</h2>
+                <UserLocationPicker setLocationData={setLocationData} />
+                <div className="flex justify-between gap-4 mt-4">
+                  <button
+                    onClick={() => setStep(1)}
+                    className="bg-gray-700 hover:bg-gray-800 px-4 py-2 rounded font-semibold"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={placeOrder}
+                    className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded font-semibold"
+                  >
+                    Place Order
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
-
-      {/* Back Button */}
-      <Link href="/userNewOrder">
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          className="bg-green-500 text-black font-semibold px-6 py-3 rounded-lg shadow-md hover:bg-green-600 hover:text-white transition mt-12"
-        >
-          ← Back
-        </motion.button>
-      </Link>
     </div>
   );
 }

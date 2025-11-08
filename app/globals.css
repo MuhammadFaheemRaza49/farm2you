@@ -29,7 +29,6 @@ body {
 }
 
 
-.mapboxgl-ctrl-attrib-inner {
-
+.mapboxgl-ctrl-attrib-inner, .mapboxgl-ctrl-bottom-left, .mapboxgl-ctrl, .mapboxgl-ctrl-attrib, .mapboxgl-compact {
   display: none !important;
 }
