@@ -24,12 +24,12 @@ export default function UserLocationPicker({getDistance, farmerLocation, setLoca
   const saveLocation = async () => {
     if (!location) return toast.error("Select a location first!");
 
+    console.log(location)
+
     setLocationData({
         latitude: location.lat,
         longitude: location.lng,
-        address})
-
-      
+        address});
   };
 
   const pickCurrentLocation = () => {
@@ -57,7 +57,7 @@ export default function UserLocationPicker({getDistance, farmerLocation, setLoca
           Use My Current Location
         </button>
       </div>
-
+      
       <Map
         initialViewState={{
           latitude: location?.lat || 24.8607,

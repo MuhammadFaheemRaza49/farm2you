@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-
+import ReactMarkdown from "react-markdown";
 export default function TransporterDashboard() {
   const crops = ["/homePage/wheat1.jpg", "/homePage/wheat2.jpg"];
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -24,19 +24,40 @@ export default function TransporterDashboard() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages]);
-
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!userInput.trim()) return;
-    setChatMessages([...chatMessages, { sender: "user", text: userInput }]);
-    setUserInput("");
 
-    // Simulate bot reply
-    setTimeout(() => {
-      setChatMessages((prev) => [
-        ...prev,
-        { sender: "bot", text: "🤖 FarmBot: This is a simulated reply." },
-      ]);
-    }, 1000);
+    // Add user message to chat
+    const newUserMessage = { sender: "user", text: userInput };
+    setChatMessages((prev) => [...prev, newUserMessage]);
+
+    const currentContext = chatMessages.map((msg) => ({
+      role: msg.sender === "user" ? "user" : "assistant",
+      content: msg.text,
+    }));
+
+    setUserInput(""); // Clear input
+
+    try {
+      // Call your backend chat endpoint
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat/send-message`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: userInput,
+          context: currentContext, // pass previous conversation
+        }),
+      });
+
+      const data = await res.json();
+      const botMessage = { sender: "bot", text: data.answer };
+
+      setChatMessages((prev) => [...prev, botMessage]);
+    } catch (err) {
+      console.error(err);
+      const errorMsg = { sender: "bot", text: "🤖 FarmBot: Something went wrong. Please try again." };
+      setChatMessages((prev) => [...prev, errorMsg]);
+    }
   };
 
   return (
@@ -128,15 +149,14 @@ export default function TransporterDashboard() {
                   key={i}
                   className={`${msg.sender === "user" ? "text-right" : "text-left"}`}
                 >
-                  <span
-                    className={`inline-block p-3 rounded-xl break-words max-w-[80%] ${
-                      msg.sender === "user"
+                  <div
+                    className={`inline-block p-3 rounded-xl break-words max-w-[80%] ${msg.sender === "user"
                         ? "bg-green-500 text-black"
                         : "bg-gray-700 text-white"
-                    }`}
+                      }`}
                   >
-                    {msg.text}
-                  </span>
+                    <ReactMarkdown>{msg.text}</ReactMarkdown>
+                  </div>
                 </div>
               ))}
               <div ref={messagesEndRef} />

@@ -8,6 +8,7 @@ export default function AddOrderPage() {
   const [productName, setProductName] = useState("");
   const [quantity, setQuantity] = useState("");
   const [price, setPrice] = useState(5000); // Base price per unit
+  const [variety, setVariety] = useState(""); 
   const [description, setDescription] = useState("");
   const [images, setImages] = useState([null, null, null]); 
   const [uploadedImages, setUploadedImages] = useState([]);
@@ -177,7 +178,8 @@ const handleSubmit = async (e) => {
     description,
     qty: quantity,
     price,
-    images: uploaded
+    images: uploaded,
+    variety
   };
  
     const req = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/product/add-product`, {
@@ -283,6 +285,17 @@ const handleSubmit = async (e) => {
             className="mt-2 w-full p-3 rounded-lg bg-black border border-green-700 text-white focus:outline-none focus:ring-2 focus:ring-green-400"
           />
         </label>
+        {/* Product Variety */}
+        <label className="block mb-4">
+          <span className="text-green-400 font-semibold">Variety</span>
+          <input
+            type="text"
+            value={variety}
+            onChange={(e) => setVariety(e.target.value)}
+            required
+            className="mt-2 w-full p-3 rounded-lg bg-black border border-green-700 text-white focus:outline-none focus:ring-2 focus:ring-green-400"
+          />
+        </label>
 
         {/* Quantity */}
         <label className="block mb-4">
@@ -304,7 +317,8 @@ const handleSubmit = async (e) => {
           <input
             type="number"
             value={price}
-            readOnly
+              onChange={(e) => setPrice(e.target.value)}
+
             className="mt-2 w-full p-3 rounded-lg bg-black border border-green-700 text-white focus:outline-none focus:ring-2 focus:ring-green-400"
           />
         </label>
@@ -352,7 +366,7 @@ const handleSubmit = async (e) => {
           type="submit"
           className="bg-green-500 hover:bg-green-600 text-black font-medium px-6 py-3 rounded-lg shadow-md transition-all w-full"
         >
-          Submit Order
+         Add Product
         </button>
       </form>
 

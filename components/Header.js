@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useUserStore } from "../store/store";
 import { ShoppingCart } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function Header({ user = {}, cartCount = 0 }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -24,12 +25,20 @@ export default function Header({ user = {}, cartCount = 0 }) {
     })
     const res = await req.json();
     if (res.type == "success") {
-      console.log(res)
+      console.log(res);
       let role = res.user.role;
       setUsername(res.user.username);
       setRole(role);
-      setIsLogin(true)
+      setIsLogin(true);
     }
+  }
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    setUsername("");
+    setIsLogin(false);
+    setRole("");
+    toast.success("Logout Successfully!")
   }
 
   useEffect(()=> {
@@ -37,7 +46,7 @@ export default function Header({ user = {}, cartCount = 0 }) {
   }, [])
 
   return (
-    <header className="bg-green-700 text-white px-6 py-4 flex justify-between items-center shadow-md relative">
+    <header className="z-10 bg-green-700 text-white px-6 py-4 flex justify-between items-center shadow-md relative">
       
       {/* Logo */}
       <Link href="/" className="text-2xl font-bold tracking-wide">Farm2You</Link>
@@ -99,6 +108,7 @@ export default function Header({ user = {}, cartCount = 0 }) {
     </Link>
 
     <button
+    onClick={logout}
       className="w-full text-left px-4 py-2 hover:bg-gray-100 transition"
     >
       Logout
@@ -109,10 +119,10 @@ export default function Header({ user = {}, cartCount = 0 }) {
           </div>
         ) : (
           <>
-            <Link href="/login" className="bg-white text-green-700 px-4 py-1 rounded hover:bg-gray-200">
+            <Link href="/loginPage" className="bg-white text-green-700 px-4 py-1 rounded hover:bg-gray-200">
               Login
             </Link>
-            <Link href="/register" className="bg-green-900 px-4 py-1 rounded hover:bg-green-950">
+            <Link href="/registerPage" className="bg-green-900 px-4 py-1 rounded hover:bg-green-950">
               Register
             </Link>
           </>
