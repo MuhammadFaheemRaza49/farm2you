@@ -129,18 +129,6 @@ export default function UserOngoingOrder() {
           <span>Total: Rs. {order.totalPrice}</span>
         </div>
 
-        {/* View Button */}
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => {
-            console.log("View Order:", order._id)
-            router.push(`/product/${order._id}`)
-          }}
-          className="w-full bg-green-500 hover:bg-green-600 text-black font-medium py-3 rounded-lg shadow-md transition-all"
-        >
-          View Details
-        </motion.button>
       </div>
     </motion.div>
   );

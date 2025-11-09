@@ -101,13 +101,7 @@ export default function Header({ user = {}, cartCount = 0 }) {
                   </p>
                 </div>
 
-                {/* Menu Links */}
-                <Link
-                  href="/profile"
-                  className="block px-4 py-2 hover:bg-gray-100 transition"
-                >
-                  My Profile
-                </Link>
+             
                 {/* Menu Links */}
                 <Link
                   href={`/${role === "user"
@@ -124,7 +118,14 @@ export default function Header({ user = {}, cartCount = 0 }) {
                 </Link>
 
                 <Link
-                  href="/orders"
+                   href={`/${role === "user"
+                      ? "userOngoingOrder"
+                      : role === "transporter"
+                        ? "transporterOngoingOrders"
+                        : role === "farmer"
+                          ? "farmerDashboard"
+                          : "farmerOngoingOrders"
+                    }`}
                   className="block px-4 py-2 hover:bg-gray-100 transition"
                 >
                   My Orders
