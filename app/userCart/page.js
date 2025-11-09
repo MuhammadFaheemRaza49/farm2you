@@ -95,6 +95,8 @@ export default function UserCart() {
     try {
       const token = localStorage.getItem("token");
 
+      
+
       const payload = {
         address: locationData,
         cartItems,

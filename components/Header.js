@@ -10,13 +10,13 @@ export default function Header({ user = {}, cartCount = 0 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(false);
 
-  const {setUsername, setRole, isLogin, setIsLogin, username, role, cartItems} = useUserStore();
+  const { setUsername, setRole, isLogin, setIsLogin, username, role, cartItems } = useUserStore();
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const toggleDropdown = () => setOpenDropdown(!openDropdown);
 
-  const verifyToken = async() => {
-     const req = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify`, {
+  const verifyToken = async () => {
+    const req = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -33,6 +33,8 @@ export default function Header({ user = {}, cartCount = 0 }) {
     }
   }
 
+
+
   const logout = () => {
     localStorage.removeItem("token");
     setUsername("");
@@ -41,20 +43,27 @@ export default function Header({ user = {}, cartCount = 0 }) {
     toast.success("Logout Successfully!")
   }
 
-  useEffect(()=> {
+  useEffect(() => {
     verifyToken();
   }, [])
 
   return (
     <header className="z-10 bg-green-700 text-white px-6 py-4 flex justify-between items-center shadow-md relative">
-      
+
       {/* Logo */}
       <Link href="/" className="text-2xl font-bold tracking-wide">Farm2You</Link>
 
       {/* Desktop Menu */}
       <nav className="hidden md:flex space-x-8 text-lg">
         <Link href="/" className="hover:text-green-200 transition">Home</Link>
-        <Link href="/dashboard" className="hover:text-green-200 transition">Dashboard</Link>
+        <Link  href={`/${role === "user"
+                      ? "userDashboard"
+                      : role === "transporter"
+                        ? "transporterDashboard"
+                        : role === "farmer"
+                          ? "farmerDashboard"
+                          : ""
+                    }`} className="hover:text-green-200 transition">Dashboard</Link>
         <Link href="/about" className="hover:text-green-200 transition">About</Link>
         <Link href="/contact" className="hover:text-green-200 transition">Contact</Link>
       </nav>
@@ -62,17 +71,17 @@ export default function Header({ user = {}, cartCount = 0 }) {
       {/* Right Side */}
       <div className="hidden md:flex items-center space-x-5">
 
-      {/* Cart Icon */}
-      <Link href="/userCart" className="top-6 right-6">
-        <div className="relative cursor-pointer">
-          <ShoppingCart className="w-8 h-8 text-green-400 hover:text-green-500 transition" />
-          {cartItems.length > 0 && (
-            <span className="absolute -top-2 -right-2 bg-green-500 text-black rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
-              {cartItems.length}
-            </span>
-          )}
-        </div>
-      </Link>
+        {/* Cart Icon */}
+        <Link href="/userCart" className="top-6 right-6">
+          <div className="relative cursor-pointer">
+            <ShoppingCart className="w-8 h-8 text-green-400 hover:text-green-500 transition" />
+            {cartItems.length > 0 && (
+              <span className="absolute -top-2 -right-2 bg-green-500 text-black rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                {cartItems.length}
+              </span>
+            )}
+          </div>
+        </Link>
 
         {/* If Logged In */}
         {isLogin ? (
@@ -81,40 +90,54 @@ export default function Header({ user = {}, cartCount = 0 }) {
               {user?.name || "Profile"}
             </button>
 
-          {openDropdown && (
-  <div className="absolute right-0 mt-2 w-48 bg-white text-black shadow-lg rounded-md py-2">
-    
-    {/* User Info */}
-    <div className="px-4 py-2 border-b border-gray-200">
-      <p className="font-semibold">Hi, {username}</p>
-      <p className="text-sm text-gray-600 capitalize">
-        Role: {role}
-      </p>
-    </div>
+            {openDropdown && (
+              <div className="absolute right-0 mt-2 w-48 bg-white text-black shadow-lg rounded-md py-2">
 
-    {/* Menu Links */}
-    <Link 
-      href="/profile" 
-      className="block px-4 py-2 hover:bg-gray-100 transition"
-    >
-      My Profile
-    </Link>
+                {/* User Info */}
+                <div className="px-4 py-2 border-b border-gray-200">
+                  <p className="font-semibold">Hi, {username}</p>
+                  <p className="text-sm text-gray-600 capitalize">
+                    Role: {role}
+                  </p>
+                </div>
 
-    <Link 
-      href="/orders" 
-      className="block px-4 py-2 hover:bg-gray-100 transition"
-    >
-      My Orders
-    </Link>
+                {/* Menu Links */}
+                <Link
+                  href="/profile"
+                  className="block px-4 py-2 hover:bg-gray-100 transition"
+                >
+                  My Profile
+                </Link>
+                {/* Menu Links */}
+                <Link
+                  href={`/${role === "user"
+                      ? "userDashboard"
+                      : role === "transporter"
+                        ? "transporterDashboard"
+                        : role === "farmer"
+                          ? "farmerDashboard"
+                          : ""
+                    }/settings`}
+                  className="block px-4 py-2 hover:bg-gray-100 transition"
+                >
+                  Settings
+                </Link>
 
-    <button
-    onClick={logout}
-      className="w-full text-left px-4 py-2 hover:bg-gray-100 transition"
-    >
-      Logout
-    </button>
-  </div>
-)}
+                <Link
+                  href="/orders"
+                  className="block px-4 py-2 hover:bg-gray-100 transition"
+                >
+                  My Orders
+                </Link>
+
+                <button
+                  onClick={logout}
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100 transition"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
 
           </div>
         ) : (

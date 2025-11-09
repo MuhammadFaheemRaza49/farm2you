@@ -4,70 +4,47 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Truck, PackageCheck, Clock } from "lucide-react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function UserOngoingOrder() {
-  const [orders] = useState([
-    {
-      id: 1,
-      product: "Wheat",
-      farmer: "Ali Khan",
-      quantity: "300 kg",
-      price: "PKR 24,000",
-      status: "In Transit",
-      images: [
-        "/homePage/wheat1.jpg",
-        "/homePage/wheat2.jpg",
-        "/crops/wheat3.png",
-      ],
-      progress: 60,
-      estDelivery: "Nov 12, 2025",
-    },
-    {
-      id: 2,
-      product: "Rice",
-      farmer: "Ahmed Raza",
-      quantity: "200 kg",
-      price: "PKR 18,000",
-      status: "Awaiting Pickup",
-      images: [
-        "/homePage/wheat1.jpg",
-        "/homePage/wheat2.jpg",
-        "/crops/rice3.png",
-      ],
-      progress: 25,
-      estDelivery: "Nov 14, 2025",
-    },
-    {
-      id: 3,
-      product: "Corn",
-      farmer: "Bilal Iqbal",
-      quantity: "150 kg",
-      price: "PKR 10,000",
-      status: "Delivered",
-      images: [
-        "/crops/corn.png",
-        "/crops/corn2.png",
-        "/crops/corn3.png",
-      ],
-      progress: 100,
-      estDelivery: "Nov 8, 2025",
-    },
-  ]);
+
+  const router = useRouter();
+
+    const [orders, setOrders] = useState([]);
+
+
+   const getOrders = async () => {
+    const payload = {
+
+    }
+      let orders = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/order/get-orders`, payload, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+
+      console.log(orders)
+
+      if (orders.data.type == "success") {
+        setOrders(orders.data.orders);
+      }
+  }
 
   // Track current image index per order
   const [currentImages, setCurrentImages] = useState(
     orders.map(() => 0)
   );
 
-  // Auto-slide images every 3 seconds
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImages((prev) =>
-        prev.map((imgIndex, i) => (imgIndex + 1) % orders[i].images.length)
-      );
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [orders]);
+    getOrders();
+
+  }, [])
+
+ useEffect(() => {
+  if (orders.length > 0) {
+    setCurrentImages(orders.map(() => 0));
+  }
+}, [orders]);
+
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center px-6 py-12">
@@ -93,79 +70,82 @@ export default function UserOngoingOrder() {
         transition={{ duration: 1 }}
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl"
       >
-        {orders.map((order, index) => (
-          <motion.div
-            key={order.id}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="bg-[#0a0a0a] border border-green-700 rounded-2xl overflow-hidden shadow-[0_0_20px_rgba(22,163,74,0.3)] hover:shadow-[0_0_25px_rgba(22,163,74,0.5)] transition-all"
-          >
-            {/* Image Carousel */}
-            <div className="w-full h-48 relative overflow-hidden">
-              <AnimatePresence mode="wait">
-                <motion.img
-                  key={currentImages[index]}
-                  src={order.images[currentImages[index]]}
-                  alt={order.product}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.8 }}
-                  className="absolute w-full h-full object-cover"
-                />
-              </AnimatePresence>
-            </div>
+{orders.map((order, index) => {
+  const firstItem = order.cartItems[0]; // display first product
+  const images = firstItem?.images || [];
 
-            {/* Order Info */}
-            <div className="p-6">
-              <h2 className="text-2xl font-bold text-green-400 mb-4 text-center">
-                {order.product}
-              </h2>
+  return (
+    <motion.div
+      key={order._id}
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1 }}
+      className="bg-[#0a0a0a] border border-green-700 rounded-2xl overflow-hidden shadow-[0_0_20px_rgba(22,163,74,0.3)] hover:shadow-[0_0_25px_rgba(22,163,74,0.5)] transition-all"
+    >
 
-              <div className="space-y-2 mb-4">
-                <div className="flex items-center gap-2 text-gray-300">
-                  <PackageCheck className="text-green-400 w-5 h-5" />
-                  <span>Farmer: {order.farmer}</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-300">
-                  <Truck className="text-green-400 w-5 h-5" />
-                  <span>Quantity: {order.quantity}</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-300">
-                  <Clock className="text-green-400 w-5 h-5" />
-                  <span>Est. Delivery: {order.estDelivery}</span>
-                </div>
-              </div>
+      {/* Image Carousel */}
+      <div className="w-full h-48 relative overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={currentImages[index]}
+            src={firstItem?.images[0]}
+            alt={firstItem?.productName}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="absolute w-full h-full object-cover"
+          />
+        </AnimatePresence>
+      </div>
 
-              {/* Progress Bar */}
-              <div className="w-full bg-gray-800 h-2 rounded-full mb-3">
-                <div
-                  className={`h-2 rounded-full ${
-                    order.progress === 100 ? "bg-green-500" : "bg-yellow-500"
-                  }`}
-                  style={{ width: `${order.progress}%` }}
-                ></div>
-              </div>
+      <div className="p-6">
+        {/* Product Name */}
+        <h2 className="text-2xl font-bold text-green-400 mb-4 text-center">
+          {firstItem?.productName}
+        </h2>
 
-              <div className="flex justify-between text-sm text-gray-400 mb-4">
-                <span>Status: {order.status}</span>
-                <span>Price: {order.price}</span>
-              </div>
+        {/* Order Details */}
+        <div className="space-y-2 mb-4 text-gray-300">
+          <div className="flex items-center gap-2">
+            <PackageCheck className="text-green-400 w-5 h-5" />
+            <span>Qty: {firstItem?.qty}</span>
+          </div>
 
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() =>
-                  console.log(`Checked order progress for ${order.product}`)
-                }
-                className="w-full bg-green-500 hover:bg-green-600 text-black font-medium py-3 rounded-lg shadow-md transition-all"
-              >
-                View Details
-              </motion.button>
-            </div>
-          </motion.div>
-        ))}
+          <div className="flex items-center gap-2">
+            <Truck className="text-green-400 w-5 h-5" />
+            <span>Transporter: {order.transporter?.username}</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Clock className="text-green-400 w-5 h-5" />
+            <span>Distance: {order.km.toFixed(1)} km</span>
+          </div>
+        </div>
+
+        {/* Status & Price */}
+        <div className="flex justify-between text-sm text-gray-400 mb-4">
+          <span>Status: {order.status}</span>
+          <span>Total: Rs. {order.totalPrice}</span>
+        </div>
+
+        {/* View Button */}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => {
+            console.log("View Order:", order._id)
+            router.push(`/product/${order._id}`)
+          }}
+          className="w-full bg-green-500 hover:bg-green-600 text-black font-medium py-3 rounded-lg shadow-md transition-all"
+        >
+          View Details
+        </motion.button>
+      </div>
+    </motion.div>
+  );
+})}
+
       </motion.div>
 
       {/* Back Button */}
