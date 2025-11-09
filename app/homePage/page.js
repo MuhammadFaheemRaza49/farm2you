@@ -3,8 +3,10 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useUserStore } from "../../store/store";
 
 export default function Home() {
+  const {isLogin} = useUserStore();
   const images = ["/homePage/bg1.jpg", "/homePage/bg2.jpg", "/homePage/bg3.jpg"];
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -66,12 +68,15 @@ export default function Home() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.2, delay: 0.4 }}
         >
-          <motion.a
+         {
+          isLogin==false && (
+            <>
+             <motion.a
             href="/loginPage"
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
             className="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg text-white font-semibold shadow-md transition-all"
-          >
+            >
             Log In
           </motion.a>
           <motion.a
@@ -79,9 +84,12 @@ export default function Home() {
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
             className="bg-white text-green-700 hover:bg-green-50 px-6 py-3 rounded-lg font-semibold shadow-md transition-all"
-          >
+            >
             Sign Up
           </motion.a>
+            </>
+          )
+         }
         </motion.div>
       </main>
     </div>
